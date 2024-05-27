@@ -146,9 +146,11 @@ private:
 	typedef void (*BusWrite)(uint16_t, uint8_t);
 	typedef uint8_t (*BusRead)(uint16_t);
 	typedef void (*ClockCycle)(mos6502*);
+	typedef bool (*IllegalOp)(uint16_t);
 	BusRead Read;
 	BusWrite Write;
 	ClockCycle Cycle;
+	IllegalOp BadOp;
 
 	// stack operations
 	inline void StackPush(uint8_t byte);
@@ -159,7 +161,7 @@ public:
 		INST_COUNT,
 		CYCLE_COUNT,
 	};
-	mos6502(BusRead r, BusWrite w, ClockCycle c = nullptr);
+	mos6502(BusRead r, BusWrite w, ClockCycle c = nullptr, IllegalOp = nullptr);
 	void NMI();
 	void IRQ();
 	void Reset();
@@ -187,4 +189,5 @@ public:
     uint8_t GetResetA();
     uint8_t GetResetX();
     uint8_t GetResetY();
+    bool illegalOpcodeCalled();
 };

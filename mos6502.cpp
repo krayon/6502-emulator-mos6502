@@ -29,7 +29,7 @@
 
 mos6502::Instr mos6502::InstrTable[256];
 
-mos6502::mos6502(BusRead r, BusWrite w, ClockCycle c)
+mos6502::mos6502(BusRead r, BusWrite w, ClockCycle c, IllegalOp i)
 	: reset_A(0x00)
     , reset_X(0x00)
     , reset_Y(0x00)
@@ -39,6 +39,7 @@ mos6502::mos6502(BusRead r, BusWrite w, ClockCycle c)
 	Write = (BusWrite)w;
 	Read = (BusRead)r;
 	Cycle = (ClockCycle)c;
+	BadOp = (IllegalOp)i;
 
 	static bool initialized = false;
 	if (initialized) return;
@@ -1064,6 +1065,7 @@ uint8_t mos6502::GetResetY()
 void mos6502::Op_ILLEGAL(uint16_t src)
 {
 	illegalOpcode = true;
+	if (BadOp) BadOp(src);
 }
 
 
@@ -1622,4 +1624,9 @@ void mos6502::Op_TYA(uint16_t src)
 	SET_ZERO(!m);
 	A = m;
 	return;
+}
+
+bool mos6502::illegalOpcodeCalled()
+{
+	return illegalOpcode;
 }
